@@ -3,10 +3,11 @@
 // - 바뀜(activate) = 이전 버전 저장본을 모두 지우고, 열려 있는 화면에 '새 버전 저장됨'을 알림
 // - 열기 = 저장본을 바로 엶(빠름·인터넷 없이도). 새 버전 확인은 페이지가 sw.js를 다시 확인해서(reg.update) 함
 // - 다른 사이트 것(유튜브 썸네일·영상, 로그인)은 저장하지 않음(인터넷 필요)
-const VER='108';
+// - v109: 저장할 때 {cache:'no-cache'} — 서버에 바뀌었는지만 묻고(304) 같으면 브라우저가 방금 받은 것을 씀. 예전 'reload'는 첫 방문 때 10MB를 통째로 한 번 더 받았음 · 그림 묶음 pimg.txt도 저장
+const VER='109';
 const CACHE='vocal-v'+VER;
-const FILES=['./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
-async function saveAll(){const c=await caches.open(CACHE);await c.addAll(FILES.map(f=>new Request(f,{cache:'reload'})));}
+const FILES=['./index.html','./pimg.txt','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];   // v109: 그림 묶음 pimg.txt도 저장
+async function saveAll(){const c=await caches.open(CACHE);await c.addAll(FILES.map(f=>new Request(f,{cache:'no-cache'})));}
 async function info(){const c=await caches.open(CACHE);let n=0,bytes=0;for(const f of FILES){const r=await c.match(f);if(r){n++;bytes+=(await r.clone().blob()).size;}}return {t:'status',v:VER,n,all:FILES.length,bytes};}
 async function tell(m){for(const cl of await self.clients.matchAll({includeUncontrolled:true}))cl.postMessage(m);}
 self.addEventListener('install',e=>{e.waitUntil(saveAll().then(()=>self.skipWaiting()));});

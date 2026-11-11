@@ -4,7 +4,7 @@
 // - 열기 = 저장본을 바로 엶(빠름·인터넷 없이도). 새 버전 확인은 페이지가 sw.js를 다시 확인해서(reg.update) 함
 // - 다른 사이트 것(유튜브 썸네일·영상, 로그인)은 저장하지 않음(인터넷 필요)
 // - v109: 저장할 때 {cache:'no-cache'} — 서버에 바뀌었는지만 묻고(304) 같으면 브라우저가 방금 받은 것을 씀. 예전 'reload'는 첫 방문 때 10MB를 통째로 한 번 더 받았음 · 그림 묶음 pimg.txt도 저장
-const VER='119';
+const VER='121';
 const CACHE='vocal-v'+VER;
 const FILES=['./index.html','./pimg.txt','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];   // v109: 그림 묶음 pimg.txt도 저장
 async function saveAll(){const c=await caches.open(CACHE);await c.addAll(FILES.map(f=>new Request(f,{cache:'no-cache'})));}

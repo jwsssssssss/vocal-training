@@ -4,7 +4,7 @@
 // - 열기 = 저장본을 바로 엶(빠름·인터넷 없이도). 새 버전 확인은 페이지가 sw.js를 다시 확인해서(reg.update) 함
 // - 다른 사이트 것(유튜브 썸네일·영상, 로그인)은 저장하지 않음(인터넷 필요)
 // - v109: 저장할 때 {cache:'no-cache'} — 서버에 바뀌었는지만 묻고(304) 같으면 브라우저가 방금 받은 것을 씀. 예전 'reload'는 첫 방문 때 10MB를 통째로 한 번 더 받았음 · 그림 묶음 pimg.txt도 저장
-const VER='124';
+const VER='129';
 const CACHE='vocal-v'+VER;
 const FILES=['./index.html','./pimg.txt','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];   // v109: 그림 묶음 pimg.txt도 저장
 async function saveAll(){const c=await caches.open(CACHE);await c.addAll(FILES.map(f=>new Request(f,{cache:'no-cache'})));}
@@ -18,4 +18,4 @@ self.addEventListener('message',e=>{const d=e.data||{};
   else if(d.t=='save')e.waitUntil(saveAll().then(info).then(s=>e.source.postMessage(Object.assign(s,{t:'saved'}))).catch(err=>e.source.postMessage({t:'error',m:String(err)})));});
 self.addEventListener('fetch',e=>{const q=e.request;if(q.method!=='GET')return;const u=new URL(q.url);if(u.origin!==location.origin)return;
   if(q.mode==='navigate'){e.respondWith(caches.open(CACHE).then(c=>c.match('./index.html')).then(r=>r||fetch(q)));return;}
-  e.respondWith(caches.match(q,{ignoreSearch:true}).then(r=>r||fetch(q)));});
+  e.respondWith(caches.match(q,{ignoreSearch:true}).then(r=>r||fetch(q).then(resp=>{if(resp.ok&&u.pathname.endsWith('/board.html')){const cp=resp.clone();caches.open(CACHE).then(c=>c.put('./board.html',cp));}return resp;})));});   /* v128: 칠판(board.html, 약 10MB)은 미리 받지 않고 처음 본 뒤 저장 */

@@ -16,6 +16,7 @@ self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.
 self.addEventListener('message',e=>{const d=e.data||{};
   if(d.t=='status')e.waitUntil(info().then(s=>e.source.postMessage(s)));
   else if(d.t=='save')e.waitUntil(saveAll().then(info).then(s=>e.source.postMessage(Object.assign(s,{t:'saved'}))).catch(err=>e.source.postMessage({t:'error',m:String(err)})));});
-self.addEventListener('fetch',e=>{const q=e.request;if(q.method!=='GET')return;const u=new URL(q.url);if(u.origin!==location.origin)return;
+self.addEventListener('fetch',e=>{const q=e.request;if(q.method!=='GET')return;const u=new URL(q.url);if(u.origin!==location.origin)return;if(u.pathname.indexOf('/app/')>=0)return;   /* 형제앱 시제품(…/app/)은 저장본으로 바꿔치지 않고 그대로 인터넷에서 엶 */
+  
   if(q.mode==='navigate'&&!u.pathname.endsWith('/board.html')){e.respondWith(caches.open(CACHE).then(c=>c.match('./index.html')).then(r=>r||fetch(q)));return;}   /* v130: 칠판(board.html, iframe으로 엶)은 '화면 열기'라도 index로 바꿔치지 않음 — v129에서 두 번째 방문부터 칠판 자리에 앱이 다시 열려 '파일 없음'이 됐음 */
   e.respondWith(caches.match(q,{ignoreSearch:true}).then(r=>r||fetch(q).then(resp=>{if(resp.ok&&u.pathname.endsWith('/board.html')){const cp=resp.clone();caches.open(CACHE).then(c=>c.put('./board.html',cp));}return resp;})));});   /* v128: 칠판(board.html, 약 10MB)은 미리 받지 않고 처음 본 뒤 저장 */
